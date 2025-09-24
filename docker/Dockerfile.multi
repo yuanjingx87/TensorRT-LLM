@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile
 ARG BASE_IMAGE=gitlab-master.nvidia.com/dl/dgx/pytorch
 ARG TRITON_IMAGE=nvcr.io/nvidia/tritonserver
-ARG BASE_TAG=25.08.01-py3-stage
+ARG BASE_TAG=main-py3-base
 ARG TRITON_BASE_TAG=25.08-py3
 ARG DEVEL_IMAGE=devel
 
