@@ -37,7 +37,7 @@ l0_a30:
   # ------------- CPP tests ---------------
   - cpp/test_unit_tests.py::test_unit_tests[batch_manager-80]
   - cpp/test_unit_tests.py::test_unit_tests[common-80]
-  # - cpp/test_unit_tests.py::test_unit_tests[executor-80] (skipped for 1.0.2-NIM)
+  - cpp/test_unit_tests.py::test_unit_tests[executor-80]
   - cpp/test_unit_tests.py::test_unit_tests[kernels-80]
   - cpp/test_unit_tests.py::test_unit_tests[layers-80] TIMEOUT (90)
   - cpp/test_unit_tests.py::test_unit_tests[runtime-80]
@@ -82,7 +82,7 @@ l0_a30:
   - unittest/trt/model/test_gpt.py -k "partition2" # 10 mins
   - unittest/trt/model/test_gpt.py -k "partition3" # 10 mins
   - unittest/trt/model/test_gpt.py -k "other" # 1 mins
-  # - examples/test_qwen2audio.py::test_llm_qwen2audio_single_gpu[qwen2_audio_7b_instruct] (Skipped for 1.0.2-NIM - see: https://nvbugspro.nvidia.com/bug/5447530)
+  - examples/test_qwen2audio.py::test_llm_qwen2audio_single_gpu[qwen2_audio_7b_instruct]
   - examples/test_multimodal.py::test_llm_multimodal_general[Qwen2-VL-7B-Instruct-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:4]
   - examples/test_multimodal.py::test_llm_multimodal_general[llava-v1.6-mistral-7b-hf-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:1]
   - examples/test_multimodal.py::test_llm_multimodal_general[llava-v1.6-mistral-7b-hf-vision-trtllm-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:1]

@@ -2464,6 +2464,8 @@ pipeline {
         CCACHE_DIR="${CCACHE_DIR}"
         GITHUB_MIRROR="https://urm.nvidia.com/artifactory/github-go-remote"
         PIP_INDEX_URL="https://urm.nvidia.com/artifactory/api/pypi/pypi-remote/simple"
+        // Index Url for flashinfer in a private pypi index
+        PIP_EXTRA_INDEX_URL="https://gitlab-master.nvidia.com/api/v4/projects/100660/packages/pypi/simple"
         // force datasets to be offline mode, to prevent CI jobs are downloading HF dataset causing test failures
         HF_DATASETS_OFFLINE=1
         CMAKE_POLICY_VERSION_MINIMUM="3.5"
