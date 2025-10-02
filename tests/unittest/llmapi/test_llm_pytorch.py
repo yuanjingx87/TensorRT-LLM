@@ -1,5 +1,6 @@
 import random
 from contextlib import contextmanager, nullcontext
+from typing import Optional
 
 import pytest
 
@@ -18,8 +19,9 @@ from .lora_test_utils import (
 from .test_llm import (_test_llm_capture_request_error, get_model_path,
                        global_kvcache_config, llama_model_path,
                        llm_get_stats_async_test_harness,
-                       llm_get_stats_test_harness, llm_test_harness, prompts,
-                       run_llm_abort_request,
+                       llm_get_stats_test_harness,
+                       llm_return_logprobs_test_harness, llm_test_harness,
+                       prompts, run_llm_abort_request,
                        run_llm_with_postprocess_parallel_and_result_handler,
                        tinyllama_logits_processor_test_harness)
 from utils.util import (force_ampere, similar, skip_gpu_memory_less_than_40gb,
@@ -836,3 +838,45 @@ class TestLlmError:
                            match="should not exceed max_num_tokens"):
             ids = [random.randint(10, 100) for _ in range(101)]
             llm.generate([ids])
+
+
+@pytest.mark.parametrize(
+    "prompt_logprobs, logprobs, return_context_logits, return_generation_logits, backend",
+    [
+        (2, None, True, False,
+         "pytorch"),  # prompt_logprobs with context_logits
+        (None, 1, False, False,
+         "pytorch"),  # generation logprobs only (top-1, PyTorch limit)
+        (2, None, False, False,
+         "pytorch"),  # prompt_logprobs without context_logits
+        (None, None, False, False, "pytorch"),  # no logprobs at all
+    ])
+def test_llm_return_logprobs(prompt_logprobs: Optional[int],
+                             logprobs: Optional[int],
+                             return_context_logits: bool,
+                             return_generation_logits: bool, backend: str):
+    llm_return_logprobs_test_harness(prompt_logprobs,
+                                     logprobs,
+                                     return_context_logits,
+                                     return_generation_logits,
+                                     backend=backend)
+
+
+@pytest.mark.parametrize(
+    "prompt_logprobs, logprobs, return_context_logits, return_generation_logits",
+    [
+        (None, 1, False,
+         False),  # generation logprobs only (top-1, PyTorch limit)
+        (2, None, True, False),  # prompt_logprobs with context_logits
+        (2, None, False, False),  # prompt_logprobs only
+        (2, 1, False, False),  # both prompt and generation logprobs
+    ])
+def test_llm_return_logprobs_streaming(prompt_logprobs, logprobs,
+                                       return_context_logits,
+                                       return_generation_logits):
+    llm_return_logprobs_test_harness(prompt_logprobs,
+                                     logprobs,
+                                     return_context_logits,
+                                     return_generation_logits,
+                                     streaming=True,
+                                     backend="pytorch")
