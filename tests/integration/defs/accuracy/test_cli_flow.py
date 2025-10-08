@@ -18,9 +18,9 @@ from tensorrt_llm.llmapi import (EagleDecodingConfig, LookaheadDecodingConfig,
                                  MedusaDecodingConfig)
 from tensorrt_llm.quantization import QuantAlgo
 
-from ..conftest import (llm_models_root, parametrize_with_ids, skip_no_nvls,
-                        skip_post_blackwell, skip_pre_ada, skip_pre_blackwell,
-                        skip_pre_hopper)
+from ..conftest import (check_device_contain, llm_models_root,
+                        parametrize_with_ids, skip_no_nvls, skip_post_blackwell,
+                        skip_pre_ada, skip_pre_blackwell, skip_pre_hopper)
 from .accuracy_core import (MMLU, CliFlowAccuracyTestHarness, CnnDailymail,
                             Humaneval, PassKeyRetrieval64k,
                             PassKeyRetrieval128k, SlimPajama6B, ZeroScrolls)
@@ -210,6 +210,7 @@ class TestLlama3_3NemotronSuper49Bv1(CliFlowAccuracyTestHarness):
     EXAMPLE_FOLDER = "models/core/nemotron_nas"
 
     @pytest.mark.skip_less_device(2)
+    @pytest.mark.skipif(check_device_contain(["L40S"]), reason="Skip on L40S")
     def test_auto_dtype_tp2(self):
         self.run(tasks=[MMLU(self.MODEL_NAME)], tp_size=2, dtype='auto')
 
