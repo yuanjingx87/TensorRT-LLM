@@ -300,11 +300,12 @@ class TestLlama3_1_8BInstruct(LlmapiAccuracyTestHarness):
             task.evaluate(llm)
 
     @pytest.mark.parametrize("backend", ["xgrammar", "llguidance"])
-    def test_guided_decoding(self, backend: str, mocker):
+    @pytest.mark.parametrize("cg_padding", [True, False])
+    def test_guided_decoding(self, backend: str, cg_padding: bool, mocker):
         mocker.patch.dict(os.environ, {"TRTLLM_XGUIDANCE_LENIENT": "1"})
         llm = LLM(self.MODEL_PATH,
                   guided_decoding_backend=backend,
-                  cuda_graph_config=CudaGraphConfig())
+                  cuda_graph_config=CudaGraphConfig(enable_padding=cg_padding))
         with llm:
             task = JsonModeEval(self.MODEL_NAME)
             task.evaluate(llm)

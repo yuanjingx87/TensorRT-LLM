@@ -444,8 +444,10 @@ accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_fp8_beam_search
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_eagle3[eagle3_one_model=True-overlap_scheduler=True]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_eagle3[eagle3_one_model=False-overlap_scheduler=False]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_ngram
-accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[xgrammar]
-accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[llguidance]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[True-xgrammar]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[False-xgrammar]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[True-llguidance]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[False-llguidance]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding_4gpus[xgrammar]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding_4gpus[llguidance]
 accuracy/test_llm_api_pytorch.py::TestLlama3_3_70BInstruct::test_fp8_tp4

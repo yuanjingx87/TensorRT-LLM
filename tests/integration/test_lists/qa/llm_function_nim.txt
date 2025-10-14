@@ -206,8 +206,10 @@ accuracy/test_llm_api_pytorch.py::TestLlama3_1_8B::test_nvfp4
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_chunked_prefill[attn_backend=FLASHINFER]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_chunked_prefill[attn_backend=TRTLLM]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_fp8_llm_sampler
-accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[xgrammar]
-accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[llguidance]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[True-xgrammar]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[False-xgrammar]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[True-llguidance]
+accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding[False-llguidance]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding_4gpus[xgrammar]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_guided_decoding_4gpus[llguidance]
 accuracy/test_llm_api_pytorch.py::TestLlama3_1_8BInstruct::test_fp8_beam_search

@@ -78,8 +78,6 @@ class GuidedDecoder:
     @nvtx_range("GuidedDecoder.execute")
     def execute(self, scheduled_requests: ScheduledRequests,
                 logits: torch.Tensor) -> None:
-        assert logits.size(0) == len(scheduled_requests.context_requests) + len(
-            scheduled_requests.generation_requests)
         torch.cuda.current_stream().wait_stream(self._stream)
 
         batched_logits, batched_bitmask = [], []
