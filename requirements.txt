@@ -1,4 +1,5 @@
 --extra-index-url https://gitlab-master.nvidia.com/api/v4/projects/100660/packages/pypi/simple
+--extra-index-url https://gitlab-master.nvidia.com/api/v4/projects/179191/packages/pypi/simple
 --extra-index-url https://download.pytorch.org/whl/cu128
 -c constraints.txt
 accelerate>=0.25.0
@@ -56,7 +57,7 @@ setuptools<80
 ordered-set
 peft
 einops
-flashinfer_python==0.4.0rc3
+flashinfer-python==0.4.0
 opencv-python-headless
 xgrammar==0.1.24
 backoff
