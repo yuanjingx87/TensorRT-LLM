@@ -1739,9 +1739,10 @@ def test_ptp_quickstart(llm_root, llm_venv):
     pytest.param('Llama3.1-70B-NVFP4',
                  'nvfp4-quantized/Meta-Llama-3.1-70B',
                  marks=skip_pre_blackwell),
-    pytest.param('Llama3.1-70B-FP8',
-                 'llama-3.1-model/Llama-3.1-70B-Instruct-FP8',
-                 marks=skip_pre_hopper),
+    pytest.param(
+        'Llama3.1-70B-FP8',
+        'llama-3.1-model/Llama-3.1-70B-Instruct-FP8',
+        marks=(skip_pre_hopper, pytest.mark.skip_less_device_memory(96000))),
     pytest.param('Nemotron-Super-49B-v1-NVFP4',
                  'nvfp4-quantized/Llama-3_3-Nemotron-Super-49B-v1_nvfp4_hf',
                  marks=skip_pre_hopper),
