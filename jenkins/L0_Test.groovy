@@ -47,7 +47,7 @@ LLM_SBSA_DOCKER_IMAGE_12_9 = "urm.nvidia.com/sw-tensorrt-docker/tensorrt-llm:pyt
 DLFW_IMAGE_12_9 = "urm.nvidia.com/docker/nvidia/pytorch:25.06-py3"
 
 // DLFW torch image
-DLFW_IMAGE = "gitlab-master.nvidia.com:5005/dl/dgx/pytorch:main-py3-base"
+DLFW_IMAGE = "urm.nvidia.com/sw-tensorrt-docker/tensorrt-llm:pytorch-25.10-py3-base-202510141148-internal"
 
 //Ubuntu base image
 UBUNTU_22_04_IMAGE = "urm.nvidia.com/docker/ubuntu:22.04"
@@ -1816,7 +1816,7 @@ def launchTestJobs(pipeline, testFilter, dockerNode=null)
         "A100X-PyTorch-1": ["a100x", "l0_a100", 1, 1],
         "L40S-PyTorch-1": ["l40s", "l0_l40s", 1, 2],
         "L40S-PyTorch-2": ["l40s", "l0_l40s", 2, 2],
-        "H100_PCIe-PyTorch-CU12-1": ["h100-cr", "l0_h100", 1, 3],
+        //"H100_PCIe-PyTorch-CU12-1": ["h100-cr", "l0_h100", 1, 3],
         "H100_PCIe-PyTorch-2": ["h100-cr", "l0_h100", 2, 3],
         "H100_PCIe-PyTorch-3": ["h100-cr", "l0_h100", 3, 3],
         "H100_PCIe-CPP-1": ["h100-cr", "l0_h100", 1, 2],
@@ -1998,36 +1998,36 @@ def launchTestJobs(pipeline, testFilter, dockerNode=null)
             DLFW_IMAGE,
             false,
         ],
-        "PY310-UB2204-CU12": [
-            LLM_ROCKYLINUX8_PY310_DOCKER_IMAGE_12_9,
-            "A10",
-            X86_64_TRIPLE,
-            true,
-            "",
-            UBUNTU_22_04_IMAGE,
-            false,
-        ],
-        "PY312-UB2404-CU12": [
-            LLM_ROCKYLINUX8_PY312_DOCKER_IMAGE_12_9,
-            "RTX5090",
-            X86_64_TRIPLE,
-            true,
-            "",
-            UBUNTU_24_04_IMAGE,
-            true, // Extra PyTorch CUDA 12.8 install
-        ],
+        //"PY310-UB2204-CU12": [
+            //LLM_ROCKYLINUX8_PY310_DOCKER_IMAGE_12_9,
+            //"A10",
+            //X86_64_TRIPLE,
+            //true,
+            //"",
+            //UBUNTU_22_04_IMAGE,
+            //false,
+        //],
+        //"PY312-UB2404-CU12": [
+            //LLM_ROCKYLINUX8_PY312_DOCKER_IMAGE_12_9,
+            //"RTX5090",
+            //X86_64_TRIPLE,
+            //true,
+            //"",
+            //UBUNTU_24_04_IMAGE,
+            //true, // Extra PyTorch CUDA 12.8 install
+        //],
     ]
 
     aarch64SanityCheckConfigs = [
-        "PY312-UB2404-CU12": [
-            LLM_SBSA_DOCKER_IMAGE_12_9,
-            "GH200",
-            AARCH64_TRIPLE,
-            false,
-            "",
-            UBUNTU_24_04_IMAGE,
-            true, // Extra PyTorch CUDA 12.8 install
-        ],
+        //"PY312-UB2404-CU12": [
+            //LLM_SBSA_DOCKER_IMAGE_12_9,
+            //"GH200",
+            //AARCH64_TRIPLE,
+            //false,
+            //"",
+            //UBUNTU_24_04_IMAGE,
+            //true, // Extra PyTorch CUDA 12.8 install
+        //],
         "PY312-DLFW": [
             LLM_DOCKER_IMAGE,
             "GH200",
