@@ -18,8 +18,6 @@ polygraphy
 psutil
 # nvidia-ml-py>=12,<13  # <For CUDA 12.9>
 nvidia-ml-py>=12
-# Just a wrapper since nvidia-modelopt requires pynvml
-pynvml==12.0.0
 pulp
 pandas
 h5py==3.12.1
