@@ -25,7 +25,7 @@ l0_sanity_check:
       - llmapi/test_llm_examples.py::test_llmapi_example_multilora
       - llmapi/test_llm_examples.py::test_llmapi_example_guided_decoding
       - llmapi/test_llm_examples.py::test_llmapi_example_logits_processor
-      # Skipping speculative decoding tests for 1.0.2-NIM
+      # Skipping speculative decoding tests for NIM
       # - llmapi/test_llm_examples.py::test_llmapi_speculative_decoding_mtp
       # - llmapi/test_llm_examples.py::test_llmapi_speculative_decoding_eagle3
       # - llmapi/test_llm_examples.py::test_llmapi_speculative_decoding_ngram

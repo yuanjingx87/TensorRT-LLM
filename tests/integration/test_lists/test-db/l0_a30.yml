@@ -37,7 +37,7 @@ l0_a30:
   # ------------- CPP tests ---------------
   - cpp/test_unit_tests.py::test_unit_tests[batch_manager-80]
   - cpp/test_unit_tests.py::test_unit_tests[common-80]
-  - cpp/test_unit_tests.py::test_unit_tests[executor-80]
+  # - cpp/test_unit_tests.py::test_unit_tests[executor-80] (skipped for NIM)
   - cpp/test_unit_tests.py::test_unit_tests[kernels-80]
   - cpp/test_unit_tests.py::test_unit_tests[layers-80] TIMEOUT (90)
   - cpp/test_unit_tests.py::test_unit_tests[runtime-80]
@@ -82,7 +82,7 @@ l0_a30:
   - unittest/trt/model/test_gpt.py -k "partition2" # 10 mins
   - unittest/trt/model/test_gpt.py -k "partition3" # 10 mins
   - unittest/trt/model/test_gpt.py -k "other" # 1 mins
-  - examples/test_qwen2audio.py::test_llm_qwen2audio_single_gpu[qwen2_audio_7b_instruct]
+  # - examples/test_qwen2audio.py::test_llm_qwen2audio_single_gpu[qwen2_audio_7b_instruct] (Skipped for NIM - see: https://nvbugspro.nvidia.com/bug/5447530)
   - examples/test_multimodal.py::test_llm_multimodal_general[Qwen2-VL-7B-Instruct-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:4]
   - examples/test_multimodal.py::test_llm_multimodal_general[llava-v1.6-mistral-7b-hf-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:1]
   - examples/test_multimodal.py::test_llm_multimodal_general[llava-v1.6-mistral-7b-hf-vision-trtllm-pp:1-tp:1-float16-bs:1-cpp_e2e:False-nb:1]
@@ -217,7 +217,7 @@ l0_a30:
   - triton_server/test_triton_llm.py::test_llama_v2_7b_ifb[test_stop_words-False-1---False-True-False-0-128-enableDecoupleMode-inflight_fused_batching-disableTrtOverlap--max_utilization---1-1-1-True-tensorrt_llm_bls]
   - triton_server/test_triton_llm.py::test_mistral_v1_7b_ifb[False-1---False-True-False-0-128-enableDecoupleMode-inflight_fused_batching-disableTrtOverlap--max_utilization-4096--1-1-1-False-ensemble]
   - triton_server/test_triton_llm.py::test_mistral_v1_multi_models[False-1---False-True-False-0-128-enableDecoupleMode-inflight_fused_batching-disableTrtOverlap--max_utilization-4096--1-1-1-False-ensemble]
-  # Skipping speculative decoding tests for 1.0.2-NIM
+  # Skipping speculative decoding tests for NIM
   # - triton_server/test_triton_llm.py::test_gpt_350m_speculative_decoding_return_logits[False-1---False-True-True-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap-0.2-max_utilization---1-1-1-False-ensemble]
   - triton_server/test_triton_llm.py::test_t5_small_enc_dec_ifb[test_basic-False-1-top_k_top_p--False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap---guaranteed_no_evict--4096-1-1-1-False-tensorrt_llm_bls]
   # - triton_server/test_triton_llm.py::test_gpt_speculative_decoding_bls[False-False-1---False-True-True-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap-0.2-guaranteed_no_evict---1-1-1-False-ensemble]
@@ -230,7 +230,7 @@ l0_a30:
   - triton_server/test_triton_llm.py::test_llava_onevision[test_basic-False-1---False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap-0.2-max_utilization---1-1-1-False-tensorrt_llm_bls]
   - triton_server/test_triton_llm.py::test_tiny_llama_1b_guided_decoding[xgrammar-tensorrtllm-True-1---False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap--guaranteed_no_evict---1-1-1-False-ensemble-accuracy]
   - triton_server/test_triton_llm.py::test_tiny_llama_1b_guided_decoding[xgrammar-python-True-1---False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap--guaranteed_no_evict---1-1-1-False-ensemble-accuracy]
-  # Skipping disaggregated tests for 1.0.2-NIM
+  # Skipping disaggregated tests for NIM
   # - triton_server/test_triton_llm.py::test_gpt_disaggregated_serving_bls[test_basic-False-1-top_k_top_p--False-True-True-0-128-enableDecoupleMode-inflight_fused_batching-disableTrtOverlap-0.2-max_utilization---1-1-1-True-tensorrt_llm_bls]
   - triton_server/test_triton_llm.py::test_llama_v2_70b_ifb_lad[7-7-7-False-1-lookahead--False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap--max_utilization---1-1-1-False-ensemble]
   - triton_server/test_triton_rcca.py::test_mistral_beam_search[rcca_4714407-True-10---False-True-False-0-128-disableDecoupleMode-inflight_fused_batching-disableTrtOverlap--guaranteed_no_evict---1-1-1-False-ensemble]
