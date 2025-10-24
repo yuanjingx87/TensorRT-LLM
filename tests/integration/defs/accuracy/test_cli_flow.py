@@ -18,9 +18,9 @@ from tensorrt_llm.llmapi import (EagleDecodingConfig, LookaheadDecodingConfig,
                                  MedusaDecodingConfig)
 from tensorrt_llm.quantization import QuantAlgo
 
-from ..conftest import (check_device_contain, llm_models_root,
-                        parametrize_with_ids, skip_no_nvls, skip_post_blackwell,
-                        skip_pre_ada, skip_pre_blackwell, skip_pre_hopper)
+from ..conftest import (llm_models_root, parametrize_with_ids, skip_no_nvls,
+                        skip_post_blackwell, skip_pre_ada, skip_pre_blackwell,
+                        skip_pre_hopper)
 from .accuracy_core import (MMLU, CliFlowAccuracyTestHarness, CnnDailymail,
                             Humaneval, PassKeyRetrieval64k,
                             PassKeyRetrieval128k, SlimPajama6B, ZeroScrolls)
