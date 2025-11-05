@@ -89,13 +89,13 @@ RUN if [ -f /etc/redhat-release ]; then \
     else \
         cd /usr/local/lib/python3.12/dist-packages/ && \
         ls -la | grep pytorch_triton && \
-        mv pytorch_triton-3.4.0+gitc817b9b6.dist-info triton-3.4.0+gitc817b9b6.dist-info && \
-        cd triton-3.4.0+gitc817b9b6.dist-info && \
+        mv pytorch_triton-3.5.0+git963b56ea.dist-info triton-3.5.0+git963b56ea.dist-info && \
+        cd triton-3.5.0+git963b56ea.dist-info && \
         echo "Current directory: $(pwd)" && \
         echo "Files in directory:" && \
         ls -la && \
         sed -i 's/^Name: pytorch-triton/Name: triton/' METADATA && \
-        sed -i 's|pytorch_triton-3.4.0+gitc817b9b6.dist-info/|triton-3.4.0+gitc817b9b6.dist-info/|g' RECORD && \
+        sed -i 's|pytorch_triton-3.5.0+git963b56ea.dist-info/|triton-3.5.0+git963b56ea.dist-info/|g' RECORD && \
         echo "METADATA after update:" && \
         grep "^Name:" METADATA; \
     fi
