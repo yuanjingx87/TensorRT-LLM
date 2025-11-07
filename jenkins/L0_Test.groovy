@@ -47,7 +47,7 @@ LLM_SBSA_DOCKER_IMAGE_12_9 = "urm.nvidia.com/sw-tensorrt-docker/tensorrt-llm:pyt
 DLFW_IMAGE_12_9 = "urm.nvidia.com/docker/nvidia/pytorch:25.06-py3"
 
 // DLFW torch image
-DLFW_IMAGE = "urm.nvidia.com/sw-tensorrt-docker/tensorrt-llm:pytorch-25.10-py3-base-202510141148-internal"
+DLFW_IMAGE = "urm.nvidia.com/sw-tensorrt-docker/tensorrt-llm:pytorch-25.11-py3-base-202511060601-internal"
 
 //Ubuntu base image
 UBUNTU_22_04_IMAGE = "urm.nvidia.com/docker/ubuntu:22.04"
@@ -2151,22 +2151,22 @@ def launchTestJobs(pipeline, testFilter, dockerNode=null)
                         }
 
                         // TODO: Remove this after public triton supports CUDA 13.
-                        if (key == "PY312-DLFW" && values[2] == X86_64_TRIPLE) {
-                            trtllm_utils.llmExecStepWithRetry(pipeline, script: "pip3 install https://download.pytorch.org/whl/nightly/pytorch_triton-3.3.1%2Bgitc8757738-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl")
-                            sh """
-                                cd /usr/local/lib/python3.12/dist-packages/ && \
-                                ls -la | grep pytorch_triton && \
-                                mv pytorch_triton-3.3.1+gitc8757738.dist-info triton-3.3.1+gitc8757738.dist-info && \
-                                cd triton-3.3.1+gitc8757738.dist-info && \
-                                echo "Current directory: \$(pwd)" && \
-                                echo "Files in directory:" && \
-                                ls -la && \
-                                sed -i 's/^Name: pytorch-triton/Name: triton/' METADATA && \
-                                sed -i 's|pytorch_triton-3.3.1+gitc8757738.dist-info/|triton-3.3.1+gitc8757738.dist-info/|g' RECORD && \
-                                echo "METADATA after update:" && \
-                                grep "^Name:" METADATA
-                            """
-                        }
+                        //if (key == "PY312-DLFW" && values[2] == X86_64_TRIPLE) {
+                            //trtllm_utils.llmExecStepWithRetry(pipeline, script: "pip3 install https://download.pytorch.org/whl/nightly/pytorch_triton-3.3.1%2Bgitc8757738-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl")
+                            //sh """
+                                //cd /usr/local/lib/python3.12/dist-packages/ && \
+                                //ls -la | grep pytorch_triton && \
+                                //mv pytorch_triton-3.3.1+gitc8757738.dist-info triton-3.3.1+gitc8757738.dist-info && \
+                                //cd triton-3.3.1+gitc8757738.dist-info && \
+                                //echo "Current directory: \$(pwd)" && \
+                                //echo "Files in directory:" && \
+                                //ls -la && \
+                                //sed -i 's/^Name: pytorch-triton/Name: triton/' METADATA && \
+                                //sed -i 's|pytorch_triton-3.3.1+gitc8757738.dist-info/|triton-3.3.1+gitc8757738.dist-info/|g' RECORD && \
+                                //echo "METADATA after update:" && \
+                                //grep "^Name:" METADATA
+                            //"""
+                        //}
 
                         def libEnv = []
                         if (env.alternativeTRT) {
