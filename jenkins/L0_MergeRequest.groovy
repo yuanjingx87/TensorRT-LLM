@@ -379,8 +379,13 @@ def preparation(pipeline, testFilter, globalVars)
         stage("Setup Environment") {
             setupPipelineEnvironment(pipeline, testFilter, globalVars)
         }
-        stage("Merge Test Waive List") {
-            mergeWaiveList(pipeline, globalVars)
+        if (env.skipMergeTestWaiveList != "true") {
+            stage("Merge Test Waive List") {
+                mergeWaiveList(pipeline, globalVars)
+            }
+        }
+        stage("Test Tmp Stage") {
+            echo "Passed in artifacts: ${env.artifactPath}"
         }
     })
 }
