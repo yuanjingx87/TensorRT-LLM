@@ -38,11 +38,17 @@ def createKubernetesPodConfig()
     return podConfig
 }
 
-def getGitCredentialId (String repoUrlKey) {
+def getGitCredentialMetadata (String repoUrlKey) {
     if (repoUrlKey == "tensorrt_llm_internal") {
-        return 'svc_tensorrt_gitlab_api_token_no_username_as_string'
+        return [
+            id: 'svc_tensorrt_gitlab_api_token_no_username_as_string',
+            type: "token"
+        ]
     } else {
-        return 'github-cred-trtllm-ci'
+        return [
+            id: 'github-cred-trtllm-ci',
+            type: "usernamepassword"
+        ]
     }
 }
 
@@ -63,7 +69,7 @@ def generate()
             }
             LLM_REPO = params.customRepoUrl
         }
-        def CREDENTIAL_ID = getGitCredentialId(params.repoUrlKey)
+        def CREDENTIAL_METADATA = getGitCredentialMetadata(params.repoUrlKey)
         sh "apt update"
         sh "apt install -y python3-dev git curl git-lfs"
         sh "git config --global --add safe.directory ${env.WORKSPACE}"
@@ -74,7 +80,8 @@ def generate()
         sh "curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.8.5 python3 -"
         sh "cd ${env.WORKSPACE}"
         sh "/root/.local/bin/poetry -h"
-        sh "export PATH=\"/root/.local/bin:\$PATH\" && python3 scripts/generate_lock_file.py"
+        //sh "export PATH=\"/root/.local/bin:\$PATH\" && python3 scripts/generate_lock_file.py"
+        sh "mkdir security_scanning/jenkins_test && echo 'test' >> security_scanning/jenkins_test/poetry.lock"
         def count = sh(script: "git status --porcelain security_scanning/ | wc -l", returnStdout: true).trim()
         echo "Changed/untracked file count: ${count}"
         if (count == "0") {
@@ -83,7 +90,17 @@ def generate()
             sh "git status"
             sh "git add \$(find . -type f \\( -name 'poetry.lock' -o -name 'pyproject.toml' -o -name 'metadata.json' \\))"
             sh "git commit -s -m \"[None][infra] Check in most recent lock file from nightly pipeline\""
-            withCredentials([string(credentialsId: CREDENTIAL_ID, variable: 'API_TOKEN')]) {
+            def credential
+            def API_TOKEN
+            if (CREDENTIAL_METADATA.type == "token") {
+                credential = string(credentialsId: CREDENTIAL_METADATA.id, variable: 'API_TOKEN')
+            } else if  (CREDENTIAL_METADATA.type == "usernamepassword") {
+                credential = usernamePassword(
+                    credentialsId: CREDENTIAL_METADATA.id,
+                    passwordVariable: 'API_TOKEN'
+                )
+            }
+            withCredentials([credential]) {
                 def authedUrl = LLM_REPO.replaceFirst('https://', "https://svc_tensorrt:${API_TOKEN}@")
                 sh "git remote set-url origin ${authedUrl}"
                 sh "git fetch origin ${params.branchName}"
