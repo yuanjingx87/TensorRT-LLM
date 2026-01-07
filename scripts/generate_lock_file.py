@@ -32,6 +32,7 @@ python3 scripts/generate_lock_files.py --path <path>/requirements.txt
 """
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -44,6 +45,8 @@ from pathlib import Path
 sys.path.insert(0, os.getcwd())
 
 FOLDER_SECURITY_SCANNING = "security_scanning"
+VALID_REQUIREMENTS_FILENAMES = ["requirements.txt", "setup.py"]
+ADDITIONAL_REQUIREMENTS_FILES = ["tensorrt_llm/visual_gen/setup.py"]
 
 url_mapping = {}
 
@@ -53,6 +56,44 @@ target_env = {
     "platform_machine": "x86_64",
     "sys_platform": "linux",
 }
+
+
+def parse_vision_gen_metadata(path_setup_py):
+    tree = ast.parse(Path(path_setup_py).read_text())
+    metadata = {}
+
+    import importlib.util
+
+    # get trtllm version from tensorrt_llm/version.py
+    module_path = os.path.join("tensorrt_llm/visual_gen/visual_gen",
+                               "__version__.py")
+    spec = importlib.util.spec_from_file_location("vision_gen", module_path)
+    if spec and spec.loader:
+        version_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(version_module)
+        version = version_module.__version__
+        metadata["version"] = version
+
+    for node in ast.walk(tree):
+        # look for: setup(...)
+        if isinstance(node, ast.Call) and getattr(node.func, "id",
+                                                  None) == "setup":
+            for kw in node.keywords:
+                if kw.arg == "install_requires":
+                    if isinstance(kw.value, ast.List):
+                        deps = []
+                        for elt in kw.value.elts:
+                            if isinstance(elt, ast.Constant) and isinstance(
+                                    elt.value, str):
+                                deps.append(elt.value)
+                        metadata["dependencies"] = deps
+                if kw.arg == "name" and isinstance(kw.value, ast.Constant):
+                    metadata["name"] = kw.value.value
+                if kw.arg == "python_requires" and isinstance(
+                        kw.value, ast.Constant):
+                    metadata["py_version"] = kw.value.value
+
+    return metadata
 
 
 def get_project_info(path: str):
@@ -109,12 +150,15 @@ if __name__ == "__main__":
 
     if args.path:
         _, filename = os.path.split(args.path)
-        assert filename == 'requirements.txt'
+        assert filename
         realpath = Path(args.path).resolve()
         paths = [realpath]
     else:
         # get paths to all files names requirements.txt
-        paths = Path.cwd().rglob('requirements.txt')
+        paths = list(Path.cwd().rglob('requirements.txt'))
+        for additional_file in ADDITIONAL_REQUIREMENTS_FILES:
+            if Path(additional_file).is_file():
+                paths.append(Path(additional_file))
 
     if os.path.exists(FOLDER_SECURITY_SCANNING):
         shutil.rmtree(FOLDER_SECURITY_SCANNING)
@@ -133,24 +177,31 @@ if __name__ == "__main__":
                                  Path(file_path).relative_to(curr_path))
         os.makedirs(save_path, exist_ok=True)
         print(f"Initializing PyProject.toml in {file_path}")
-        project_info = get_project_info(file_path)
-        name = project_info["name"]
-        author = '"TensorRT LLM [90828364+tensorrt-cicd@users.noreply.github.com]"'
-        version = project_info["version"]
+        if file_name == "setup.py":
+            # TODO make it more generic
+            project_info = parse_vision_gen_metadata(path)
+            name = project_info["name"]
+            packages = project_info["dependencies"]
+        else:
+            project_info = get_project_info(file_path)
+            name = project_info["name"]
+            output = subprocess.run(f'cat {path}',
+                                    shell=True,
+                                    capture_output=True,
+                                    text=True).stdout
+            packages = output.split('\n')
         py_version = '">=3.10,<3.13"'
+        version = project_info["version"]
+        author = '"TensorRT LLM [90828364+tensorrt-cicd@users.noreply.github.com]"'
         poetry_init_cmd = f'poetry init --no-interaction --name {name} --author {author} --python {py_version}'
+        print(poetry_init_cmd)
+        subprocess.run(poetry_init_cmd, shell=True, cwd=save_path)
         if name == "tensorrt-llm":
             poetry_init_cmd += " -l Apache-2.0"
-        subprocess.run(poetry_init_cmd, shell=True, cwd=save_path)
         if version != "0.1.0":
             subprocess.run(f"poetry version {version}",
                            shell=True,
                            cwd=file_path)
-        output = subprocess.run(f'cat {path}',
-                                shell=True,
-                                capture_output=True,
-                                text=True).stdout
-        packages = output.split('\n')
 
         if packages[-1] == '':  # last entry is newline
             packages = packages[:-1]
