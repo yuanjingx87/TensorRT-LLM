@@ -379,6 +379,18 @@ jobs:
           args2: ${{ fromJson(needs.Authorization.outputs.args).args2 }}
           args3: ${{ fromJson(needs.Authorization.outputs.args).args3 }}
 
+  SonarQube-scan:
+    name: SnoarQube scan
+    needs: [Authorization]
+    runs-on: blossom
+    steps:
+      - name: Run SonarQube Code Analysis
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+
   Job-trigger:
     name: Start ci job
     needs: [Vulnerability-scan]
