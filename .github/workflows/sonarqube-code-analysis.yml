@@ -1,11 +1,6 @@
 name: SonarQube
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       ref:
@@ -15,8 +10,7 @@ on:
 jobs:
   build:
     name: Build and analyze
-    runs-on: ubuntu-latest
-
+    runs-on: linux-amd64-cpu8
     steps:
       - uses: actions/checkout@v6
         with:
