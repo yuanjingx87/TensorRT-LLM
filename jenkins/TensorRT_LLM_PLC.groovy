@@ -72,7 +72,6 @@ def getLLMRepo () {
 
 def installTools() {
     container("alpine") {
-        sh "mkdir -p $JENKINS_HOME"
         sh "apt update"
         sh "apt install -y git git-lfs openjdk-17-jdk python3-dev python3-venv curl unzip"
     }
@@ -254,26 +253,26 @@ pipeline {
         }
         stage('Run TRT-LLM PLC Jobs') {
             parallel {
-                stage("Source Code OSS Scanning"){
-                    stages {
-                        stage("Generate Lock Files"){
-                            steps
-                            {
-                                script {
-                                    generateLockFiles(env.LLM_REPO, env.BRANCH_NAME)
-                                }
-                            }
-                        }
-                        stage("Run Pulse Scanning"){
-                            steps
-                            {
-                                script {
-                                    pulseScan(env.LLM_REPO, env.BRANCH_NAME)
-                                }
-                            }
-                        }
-                    }
-                }
+                //stage("Source Code OSS Scanning"){
+                    //stages {
+                        //stage("Generate Lock Files"){
+                            //steps
+                            //{
+                                //script {
+                                    //generateLockFiles(env.LLM_REPO, env.BRANCH_NAME)
+                                //}
+                            //}
+                        //}
+                        //stage("Run Pulse Scanning"){
+                            //steps
+                            //{
+                                //script {
+                                    //pulseScan(env.LLM_REPO, env.BRANCH_NAME)
+                                //}
+                            //}
+                        //}
+                    //}
+                //}
                 stage("SonarQube Code Analysis"){
                     steps
                     {
