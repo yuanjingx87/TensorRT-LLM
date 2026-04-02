@@ -63,5 +63,8 @@ def diff_licenses(release_path, base_path):
     ]
 
     introduced_licenses.sort(key=lambda e: (e["package"], e["version"]))
+    print(f"Licenses detected for {release_path}")
+    for item in introduced_licenses:
+        print(item)
 
     return introduced_licenses
