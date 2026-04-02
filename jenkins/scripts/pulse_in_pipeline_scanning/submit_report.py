@@ -208,8 +208,8 @@ def submit_container_licenses(
     release_image = release_data.get("image_tag", "")
     base_image = base_data.get("image_tag", "")
     for v in trtllm_deps:
-        package_name = v.get("package_name")
-        package_version = v.get("package_version")
+        package_name = v.get("package")
+        package_version = v.get("version")
         result_key = (package_name, package_version)
         is_new = result_key not in last_scan_result
         doc = {
