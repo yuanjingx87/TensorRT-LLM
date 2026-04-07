@@ -8,3 +8,5 @@ wheel>=0.46.2
 protobuf>=6.33.5
 # WAR against https://github.com/advisories/GHSA-6mq8-rvhq-8wgg
 aiohttp>=3.13.3
+# WAR against
+pillow>=12.1.1
