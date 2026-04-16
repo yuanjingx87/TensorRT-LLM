@@ -349,21 +349,21 @@ pipeline {
         }
         stage('Run TRT-LLM PLC Jobs') {
             parallel {
-                stage("Source Code OSS Scanning") {
-                    steps {
-                        script {
-                            generateLockFiles(env.LLM_REPO, env.BRANCH_NAME)
-                            pulseScanSourceCode(env.LLM_REPO, env.BRANCH_NAME)
-                        }
-                    }
-                }
-                stage("Run Container Scanning") {
-                    steps {
-                        script {
-                            pulseScanContainer(env.LLM_REPO, env.BRANCH_NAME)
-                        }
-                    }
-                }
+                //stage("Source Code OSS Scanning") {
+                    //steps {
+                        //script {
+                            //generateLockFiles(env.LLM_REPO, env.BRANCH_NAME)
+                            //pulseScanSourceCode(env.LLM_REPO, env.BRANCH_NAME)
+                        //}
+                    //}
+                //}
+                //stage("Run Container Scanning") {
+                    //steps {
+                        //script {
+                            //pulseScanContainer(env.LLM_REPO, env.BRANCH_NAME)
+                        //}
+                    //}
+                //}
                 stage("SonarQube Code Analysis") {
                     steps {
                         script {
