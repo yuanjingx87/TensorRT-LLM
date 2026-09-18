@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@Library(['bloom-jenkins-shared-lib@main', 'trtllm-jenkins-shared-lib@main']) _
+@Library(['bloom-jenkins-shared-lib@dev-yuanjingx-method_to_list_all_aihub_clusters', 'trtllm-jenkins-shared-lib@main']) _
 
 import com.nvidia.bloom.SlurmConfig
 
@@ -23,7 +23,7 @@ UBUNTU_24_04_IMAGE = "urm.nvidia.com/docker/ubuntu:24.04"
 TEST_DURATIONS_DIR = "tests/integration/defs/test_durations"
 DURATION_FILE_PATH = "${TEST_DURATIONS_DIR}/.general"
 // Target repository the updated duration file is committed straight back into.
-TARGET_REPO = "NVIDIA/TensorRT-LLM"
+TARGET_REPO = "yuanjingx87/TensorRT-LLM"
 
 def sanityCheckItemCount(String oldPath, String newPath, boolean requireOld = true) {
     if (!requireOld && !fileExists(oldPath)) {
