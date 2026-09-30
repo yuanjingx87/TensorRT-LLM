@@ -50,7 +50,9 @@ def get_latest_build_number(jenkins_base):
 def main():
     if len(sys.argv) == 2:
         # Branch mode: auto-discover latest build number
-        branch_name = sys.argv[1]
+        # Jenkins job folders (and artifact paths) use '-' where git refs use '/',
+        # e.g. ref "release/1.3" -> job "release-1.3".
+        branch_name = sys.argv[1].replace("/", "-")
         jenkins_base = f"https://prod.blsm.nvidia.com/sw-tensorrt-top-1/job/LLM/job/{branch_name}/job/L0_PostMerge"
         artifactory_base = (
             f"https://urm.nvidia.com/artifactory/sw-tensorrt-generic-local/"
