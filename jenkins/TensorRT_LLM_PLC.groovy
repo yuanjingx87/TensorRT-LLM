@@ -480,7 +480,7 @@ pipeline {
         kubernetes createKubernetesPodConfig()
     }
     parameters {
-        string(name: 'ref', defaultValue: 'main', description: 'Branch name or commit SHA (7–40 hex chars) to check out; branch push steps are skipped when a commit SHA is provided')
+        string(name: 'ref', defaultValue: 'release/1.3', description: 'Branch name or commit SHA (7–40 hex chars) to check out; branch push steps are skipped when a commit SHA is provided')
         choice(name: 'repoUrlKey', choices: ['tensorrt_llm_github','tensorrt_llm_internal', 'tensorrt_llm_github_sync', 'github_fork'], description: "The repo url to process")
         string(name: 'forkOwner', defaultValue: '', description: 'Name of the fork owner, need to select \"github_fork\" for repoUrlKey, otherwise it will be ignored')
         string(name: 'postMergePipelineName', defaultValue: '', description: 'Optional: post-merge pipeline job name to associate with this scan')
@@ -503,7 +503,7 @@ pipeline {
         // Schedule is only active when running from the official pipeline folder.
         // Jobs in other folders (e.g. personal/dev pipelines) will have no cron trigger.
         parameterizedCron(env.JOB_NAME.startsWith('LLM/helpers/') ? '''
-            H 2 * * * %ref=main;repoUrlKey=tensorrt_llm_github;scanMode=monitor
+            H 2 * * * %ref=release/1.3;repoUrlKey=tensorrt_llm_github;scanMode=monitor
         ''' : '')
     }
     stages {
