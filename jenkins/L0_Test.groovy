@@ -1087,7 +1087,18 @@ boolean isNonTerminalSlurmState(String state) {
     return state != null && SLURM_NON_TERMINAL_STATES.contains(state.toUpperCase(java.util.Locale.ROOT))
 }
 
-def runLLMTestlistWithAgent(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, skipInstallWheel=false, cpver="cp312", String postTag="", boolean useClusterDurations=false, Map placementContext=null, Map retryContext=null)
+def resolveClusterDurationsRelPath(String llmSrc, String clusterKey)
+{
+    def dir = "tests/integration/defs/test_durations"
+    def clusterFile = "${dir}/.${clusterKey}"
+    if (fileExists("${llmSrc}/${clusterFile}")) {
+        return clusterFile
+    }
+    echo "No per-cluster durations file for '${clusterKey}'; falling back to ${dir}/.general"
+    return "${dir}/.general"
+}
+
+def runLLMTestlistWithAgent(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, skipInstallWheel=false, cpver="cp312", String postTag="", Map placementContext=null, Map retryContext=null)
 {
     SlurmPartition partition = SlurmConfig.resolvePlatform(platform)
     SlurmCluster cluster = SlurmConfig.clusterConfig[partition.clusterName]
@@ -1512,7 +1523,7 @@ def runLLMTestlistWithAgent(pipeline, platform, testList, config=VANILLA_CONFIG,
             return err
         }
         try {
-            executeLLMTestOnSlurm(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, slurmRunner, postTag, useClusterDurations, retryContext, classifySlurmFailure)
+            executeLLMTestOnSlurm(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, slurmRunner, postTag, retryContext, classifySlurmFailure)
         } catch (InterruptedException e) {
             pendingStageFailure = e
             throw e
@@ -1576,13 +1587,13 @@ def runLLMTestlistWithAgent(pipeline, platform, testList, config=VANILLA_CONFIG,
     }
 }
 
-def executeLLMTestOnSlurm(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", runner, String postTag="", boolean useClusterDurations=false, Map retryContext=null, Closure classifySlurmFailure=null)
+def executeLLMTestOnSlurm(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", runner, String postTag="", Map retryContext=null, Closure classifySlurmFailure=null)
 {
     runner {
         // TODO: refactor the finallyRunner to reuse within slurm or nonslurm job.
         cacheErrorAndUploadResult(stageName, {
             try {
-                runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, postTag, useClusterDurations)
+                runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, postTag)
             } catch (InterruptedException e) {
                 throw e
             } catch (Exception e) {
@@ -1781,7 +1792,7 @@ def getMountListForSlurmTest(SlurmCluster cluster, boolean useSbatch = false)
     return mounts
 }
 
-def runLLMTestlistWithSbatch(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, nodeCount=1, skipInstallWheel=false, cpver="cp312", String postTag="", boolean useClusterDurations=false, Map placementContext=null, Map retryContext=null)
+def runLLMTestlistWithSbatch(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, nodeCount=1, skipInstallWheel=false, cpver="cp312", String postTag="", Map placementContext=null, Map retryContext=null)
 {
     SlurmPartition partition = SlurmConfig.resolvePlatform(platform)
     SlurmCluster cluster = SlurmConfig.clusterConfig[partition.clusterName]
@@ -1896,7 +1907,7 @@ def runLLMTestlistWithSbatch(pipeline, platform, testList, config=VANILLA_CONFIG
                 // line is "Mako options:", maybe we can make it more generic, which
                 // if the line cannot be split by "=", just ignore that line.
                 def makoOptsJson = transformMakoArgsToJson(["Mako options:"] + makoArgs)
-                String clusterNameForDurations = useClusterDurations ? partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_') : null
+                String clusterNameForDurations = partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_')
                 def testListPathLocal = renderTestDB(pipeline, testList, llmSrcLocal, stageName, makoOptsJson, clusterNameForDurations)
                 // Copy the test list atomically. A retry that reuses a still-active job
                 // re-copies over ${testListPathNode} while that job may be reading it via
@@ -2006,11 +2017,9 @@ def runLLMTestlistWithSbatch(pipeline, platform, testList, config=VANILLA_CONFIG
                 def uploadPath = "${env.JOB_NAME}/${env.BUILD_NUMBER}"
 
                 def clusterDurationsArgsNode = []
-                if (useClusterDurations) {
-                    def clusterKey = partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_')
-                    def clusterDurationsPathNode = "${llmSrcNode}/tests/integration/defs/.test_durations_${clusterKey}"
-                    clusterDurationsArgsNode = ["--durations-path ${clusterDurationsPathNode}"]
-                }
+                def clusterKey = partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_')
+                def clusterDurationsPathNode = "${llmSrcNode}/${resolveClusterDurationsRelPath(llmSrcLocal, clusterKey)}"
+                clusterDurationsArgsNode = ["--durations-path ${clusterDurationsPathNode}"]
                 def extraArgs = [
                     "--test-list=$testListPathNode",
                     "--splitting-algorithm least_duration",
@@ -2907,7 +2916,7 @@ boolean isDispatcherPodFailure(Throwable e) {
     return ContextDeath.isContextDeath(e)
 }
 
-def runLLMTestlistOnSlurm(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, nodeCount=1, runWithSbatch=false, skipInstallWheel=false, cpver="cp312", String outerAttemptTag="", boolean useClusterDurations=false, Integer infraRetryMax=null)
+def runLLMTestlistOnSlurm(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, gpuCount=1, nodeCount=1, runWithSbatch=false, skipInstallWheel=false, cpver="cp312", String outerAttemptTag="", Integer infraRetryMax=null)
 {
   echo "Run Slurm job with native sbatch: $runWithSbatch"
 
@@ -2964,9 +2973,9 @@ def runLLMTestlistOnSlurm(pipeline, platform, testList, config=VANILLA_CONFIG, p
       ]
 
       if (nodeCount > 1 || runWithSbatch) {
-        runLLMTestlistWithSbatch(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, gpuCount, nodeCount, skipInstallWheel, cpver, postTag, useClusterDurations, attemptPlacementContext, slurmRetryContext)
+        runLLMTestlistWithSbatch(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, gpuCount, nodeCount, skipInstallWheel, cpver, postTag, attemptPlacementContext, slurmRetryContext)
       } else {
-        runLLMTestlistWithAgent(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, gpuCount, skipInstallWheel, cpver, postTag, useClusterDurations, attemptPlacementContext, slurmRetryContext)
+        runLLMTestlistWithAgent(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, gpuCount, skipInstallWheel, cpver, postTag, attemptPlacementContext, slurmRetryContext)
       }
 
       // Job succeeded
@@ -5040,7 +5049,7 @@ def priorAttemptTags(String postTag) {
     return priors
 }
 
-def runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", String postTag="", boolean useClusterDurations=false)
+def runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", String postTag="")
 {
     // Step 1: create LLM_ROOT dir and clean up the workspace
     def llmRootConfig = "${LLM_ROOT}${config}"
@@ -5235,20 +5244,14 @@ def runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config=VANILLA_CO
             perfMode = false
         }
 
-        // When useClusterDurations is set, use a per-cluster durations file keyed on
-        // partition.clusterName (e.g. "oci-hsg", "dlcluster").  This lets each cluster
-        // build its own timing baseline so sharding is not skewed by timings collected
-        // on different hardware.  Falls back to the shared .test_durations when unset.
         def clusterDurationsArgs = []
         def clusterDurationsPath = ""
         String clusterNameForDurations = null
-        if (useClusterDurations) {
-            def partition = SlurmConfig.resolvePlatform(platform)
-            def clusterKey = partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_')
-            clusterNameForDurations = clusterKey
-            clusterDurationsPath = "${llmSrc}/tests/integration/defs/.test_durations_${clusterKey}"
-            clusterDurationsArgs = ["--durations-path ${clusterDurationsPath}"]
-        }
+        def partition = SlurmConfig.resolvePlatform(platform)
+        def clusterKey = partition.clusterName.replaceAll('[^a-zA-Z0-9]', '_')
+        clusterNameForDurations = clusterKey
+        clusterDurationsPath = "${llmSrc}/${resolveClusterDurationsRelPath(llmSrc, clusterKey)}"
+        clusterDurationsArgs = ["--durations-path ${clusterDurationsPath}"]
 
         def testDBList = renderTestDB(pipeline, testList, llmSrc, stageName, null, clusterNameForDurations)
         def waivesFilePath = infraDryRun
@@ -5559,7 +5562,7 @@ def runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config=VANILLA_CO
 // composed with an attempt tag by the helper) and `isFinalAttempt` (so this
 // function's `cacheErrorAndUploadResult` can suppress synthetic stage-fail XML
 // and junit() for intermediate retryable failures).
-def runLLMTestlistOnPlatform(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", postTag="", boolean isFinalAttempt=true, Map retryContext=null, boolean useClusterDurations=false)
+def runLLMTestlistOnPlatform(pipeline, platform, testList, config=VANILLA_CONFIG, perfMode=false, stageName="Undefined", splitId=1, splits=1, skipInstallWheel=false, cpver="cp312", postTag="", boolean isFinalAttempt=true, Map retryContext=null)
 {
     cacheErrorAndUploadResult(stageName, {
         // PMIx builds a singleton ID, singleton.{hostname}.{pid}, that must fit a
@@ -5574,7 +5577,7 @@ def runLLMTestlistOnPlatform(pipeline, platform, testList, config=VANILLA_CONFIG
             "PMIX_HOSTNAME=mpi-node0",
         ]
         withEnv(testEnv) {
-            runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, postTag, useClusterDurations)
+            runLLMTestlistOnPlatformImpl(pipeline, platform, testList, config, perfMode, stageName, splitId, splits, skipInstallWheel, cpver, postTag)
         }
     }, {
         if (testFilter[(DEBUG_MODE)]) {
@@ -6314,14 +6317,28 @@ def runKubernetesPodWithInfraRetry(Map opts = [:], pipeline, podSpec, containerN
     }
 }
 
+// Picks the cluster for a whole test config group once, so every shard runs on
+// (and is balanced with the durations of) the same cluster. An "auto:" frontend
+// platform is resolved to a concrete backend platform via its weighted selector;
+// any other platform already names a fixed cluster and is returned unchanged.
+def pinStageClusterPlatform(String platform) {
+    if (!platform.startsWith("auto:")) {
+        return platform
+    }
+    def backendPlatform = SlurmConfig.frontendPlatforms[platform].selectItem()
+    echo "Pinned ${platform} -> ${backendPlatform} for all shards of the group"
+    return backendPlatform
+}
+
 // Expands a compact Slurm test config spec into the shard-keyed map format
 // consumed by launchTestJobs: "stageName-<k>": [platform, testlist, k,
-// splitCount, gpuCount, nodeCount, runWithSbatch, useClusterDurations] for
+// splitCount, gpuCount, nodeCount, runWithSbatch] for
 // k in 1..splitCount. Each named param applies identically to every shard.
-def buildStageConfigs(stageName, platform, testlist, splitCount, gpuCount = 1, nodeCount = 1, runWithSbatch = false, useClusterDurations = false) {
+def buildStageConfigs(stageName, platform, testlist, splitCount, gpuCount = 1, nodeCount = 1, runWithSbatch = false) {
     def configs = [:]
+    platform = pinStageClusterPlatform(platform)
     for (int k = 1; k <= splitCount; k++) {
-        configs["${stageName}-${k}"] = [platform, testlist, k, splitCount, gpuCount, nodeCount, runWithSbatch, useClusterDurations]
+        configs["${stageName}-${k}"] = [platform, testlist, k, splitCount, gpuCount, nodeCount, runWithSbatch]
     }
     return configs
 }
@@ -6394,7 +6411,7 @@ def buildStageConfigsFromSpecs(specs) {
         def expanded = spec.slurm ?
             buildStageConfigs(spec.name, spec.platform, spec.testDB, spec.splits,
                                spec.gpuCount ?: 1, spec.nodeCount ?: 1,
-                               spec.runWithSbatch ?: false, spec.useClusterDurations ?: false) :
+                               spec.runWithSbatch ?: false) :
             buildK8sStageConfigs(spec.name, spec.platform, spec.testDB, spec.splits,
                                   spec.gpuCount ?: 1, spec.modelExpressSidecar ?: false)
         grouped[bucket] += expanded
