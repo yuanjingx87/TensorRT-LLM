@@ -630,7 +630,7 @@ pipeline {
     triggers {
         // Schedule is only active when running from the official pipeline folder.
         // Jobs in other folders (e.g. personal/dev pipelines) will have no cron trigger.
-        parameterizedCron(env.JOB_NAME.startsWith('LLM/helpers/') ? '''
+        parameterizedCron(env.JOB_NAME.startsWith('LLM/release-1.3/') ? '''
             H 2 * * * %ref=release/1.3;repoUrlKey=tensorrt_llm_github;scanMode=monitor
         ''' : '')
     }
