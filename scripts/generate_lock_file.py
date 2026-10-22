@@ -132,6 +132,7 @@ if __name__ == "__main__":
         save_path = os.path.join(FOLDER_SECURITY_SCANNING,
                                  Path(file_path).relative_to(curr_path))
         os.makedirs(save_path, exist_ok=True)
+        print(f"Processing {path}")
         print(f"Initializing PyProject.toml in {file_path}")
         project_info = get_project_info(file_path)
         name = project_info["name"]
@@ -188,7 +189,7 @@ if __name__ == "__main__":
                 package_name = data[0].replace(" ", "")
                 if (not package_name.startswith("tensorrt_llm")
                         and not package_name.startswith("3rdparty")):
-                    poetry_cmd = f"poetry add '{package_name}'"
+                    poetry_cmd = f"poetry add -vvv '{package_name}'"
                     if package_name in url_mapping:
-                        poetry_cmd = f"poetry add '{url_mapping[package_name]}'"
+                        poetry_cmd = f"poetry add -vvv '{url_mapping[package_name]}'"
                     subprocess.run(poetry_cmd, shell=True, cwd=save_path)
