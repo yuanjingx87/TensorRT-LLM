@@ -2461,6 +2461,15 @@ def getCommonParameters()
     ]
 }
 
+// Nightly release passes its Slack thread down so PLC notifications reply in it.
+// Read via env: callers build a local `params` list that shadows the build params.
+def getPLCSlackParameters()
+{
+    return [
+        string(name: 'slack_thread_id', value: env.slack_thread_id ?: ''),
+    ]
+}
+
 def getPLCRepoUrlKey()
 {
     def repoUrlKey = "tensorrt_llm_github_sync"
@@ -2647,7 +2656,7 @@ def launchStages(pipeline, reuseBuild, testFilter, enableFailFast, globalVars)
                                 string(name: 'runContainerOssScanning', value: 'false'),
                                 string(name: 'runContainerMalwareScanning', value: 'false'),
                                 string(name: 'runSonarQube', value: 'false'),
-                            ]
+                            ] + getPLCSlackParameters()
                             def handle = build(
                                 job: "/LLM/helpers/PLCScanningSetup",
                                 parameters: params,
@@ -3190,7 +3199,7 @@ def launchStages(pipeline, reuseBuild, testFilter, enableFailFast, globalVars)
                             string(name: 'runContainerOssScanning', value: 'true'),
                             string(name: 'runContainerMalwareScanning', value: 'false'),
                             string(name: 'runSonarQube', value: 'false'),
-                        ]
+                        ] + getPLCSlackParameters()
                         def logger = new Logger(pipeline)
                         def handle = build(
                             job: "/LLM/helpers/PLCScanningSetup",
